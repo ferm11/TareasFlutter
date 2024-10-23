@@ -24,6 +24,11 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="tareas">
+
+  <!-- API DE GOOGLE -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+  <meta name="google-signin-client_id" content="965610149476-ieqvfaarut56ujsev3g905q47tof2ogm.apps.googleusercontent.com">
+
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -31,8 +36,23 @@
 
   <title>tareas</title>
   <link rel="manifest" href="manifest.json">
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AlzaSyClICC9_Hj6tiKqYMoP9Ay4qiq2Ms_rqg1U", // Tu clave de API
+      authDomain: "tareasflutter.firebaseapp.com", // Dominio de autenticación
+      projectId: "tareasflutter-4eb09", // ID del proyecto
+      storageBucket: "tareasflutter.appspot.com", // Almacenamiento
+      messagingSenderId: "965610149476", // ID del remitente de mensajes
+      appId: "1:965610149476:web:801431fd3acb5601217171" // ID de la aplicación
+    };
+    // Inicializar Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
+  
 </body>
 </html>

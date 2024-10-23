@@ -3,6 +3,7 @@ import 'colors.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/services.dart'; // Para FilteringTextInputFormatter
+import 'package:awesome_dialog/awesome_dialog.dart';
 
 class RegisterScreen extends StatelessWidget {
   final TextEditingController _usernameController = TextEditingController();
@@ -41,27 +42,77 @@ class RegisterScreen extends StatelessWidget {
 
     // Validaciones
     if (username.isEmpty || nombre.isEmpty || apellidos.isEmpty || telefono.isEmpty || correo.isEmpty || edad == null || password.isEmpty) {
-      _showErrorDialog(context, 'Por favor completa todos los campos.');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Alerta',
+        desc: 'Por favor completa todos los campos.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       return;
     }
 
     if (!validateEmail(correo)) {
-      _showErrorDialog(context, 'Por favor introduce un correo electrónico válido.');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Alerta',
+        desc: 'Por favor introduce un correo electrónico válido.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       return;
     }
 
     if (!validatePhoneNumber(telefono)) {
-      _showErrorDialog(context, 'Por favor introduce un número de teléfono válido.');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Alerta',
+        desc: 'Por favor introduce un número de teléfono válido.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       return;
     }
 
     if (!validatePassword(password)) {
-      _showErrorDialog(context, 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un signo especial.');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Alerta',
+        desc: 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un signo especial.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       return;
     }
 
     if (password != confirmPassword) {
-      _showErrorDialog(context, 'Las contraseñas no coinciden.');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Alerta',
+        desc: 'Las contraseñas no coinciden.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       return;
     }
 
@@ -83,11 +134,29 @@ class RegisterScreen extends StatelessWidget {
 
     if (response.statusCode == 200) {
       // Registro exitoso
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Usuario registrado correctamente')),
-      );
-      Navigator.pushNamed(context, '/login');
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Exito!',
+        desc: 'Usuario registrado correctamente.',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+          Navigator.pushNamed(context, '/home');
+        },
+      )..show();
     } else {
+      AwesomeDialog(
+        context: context,
+        dialogType: DialogType.info,
+        animType: AnimType.bottomSlide,
+        title: 'Oooooh no!',
+        desc: 'Error al registrar el registar el usuario',
+        btnOkText: 'Cerrar',
+        btnOkOnPress: () {
+
+        },
+      )..show();
       _showErrorDialog(context, 'Error al registrar usuario: ${response.body}');
     }
   }

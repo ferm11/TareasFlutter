@@ -28,6 +28,15 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        applicationId "com.auth0.samples"
+        minSdkVersion 21
+        targetSdkVersion flutter.targetSdkVersion
+        // ...
+
+        // ---> Add the next line
+        manifestPlaceholders += [auth0Domain: "dev-mbxq2mv4zudqw8f4.us.auth0.com", auth0Scheme: "https"]
+        // <---
     }
 
     buildTypes {
@@ -42,3 +51,11 @@ android {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:31.1.1')
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.android.gms:play-services-auth:20.5.0'
+    apply plugin: 'com.google.gms.google-services'
+}
+

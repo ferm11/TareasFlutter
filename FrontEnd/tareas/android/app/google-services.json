@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "965610149476",
+    "project_id": "tareasflutter-4eb09",
+    "storage_bucket": "tareasflutter-4eb09.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:965610149476:android:801431fd3acb5601217171",
+        "android_client_info": {
+          "package_name": "com.tareas.firebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "965610149476-498k6fv3env93du2868i85nqn07o1iuq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tareas.firebase",
+            "certificate_hash": "91f65f18a6681b1205877ff35c3461f3c0f039ef"
+          }
+        },
+        {
+          "client_id": "965610149476-7pn7itvsa55bqavq47q8kuoppjj8qfh9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy_IzF3iwnNEKBX_FMRRznr8cLwC0pzvo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "965610149476-7pn7itvsa55bqavq47q8kuoppjj8qfh9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "965610149476-q58d7a8c86jk1uu52cnpi8lavmubsold.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tareas.firebase"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

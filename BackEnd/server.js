@@ -4,11 +4,8 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const { MongoClient } = require('mongodb'); 
+const mysql = require('mysql2/promise'); // Importar mysql2/promise para usar promesas
 const cors = require('cors');
-require('dotenv').config();
 
 const app = express();
 app.use(bodyParser.json());
@@ -17,119 +14,57 @@ app.use(cors({
   origin: '*', // Permitir todas las solicitudes de origen
 }));
 
-// CONEXIÓN DE LA BASE DE DATOS
-
-const uri = 'mongodb+srv://fermgarcia1912:wUcs7uRYLU8nnRrr@tareas.tgork.mongodb.net/tuBaseDeDatos?retryWrites=true&w=majority';
-
-const client = new MongoClient(uri, { 
-    ssl: true,  // Activar SSL para conexiones a Atlas
-    tlsInsecure: true,  // Temporalmente deshabilitar la validación de certificados (solo para pruebas)
-    connectTimeoutMS: 10000,
-    socketTimeoutMS: 45000
+// Configuración de la conexión a la base de datos
+const dbPool = mysql.createPool({
+  host: 'bfiduy2yfdfeqqrvvy53-mysql.services.clever-cloud.com',
+  user: 'udzpqpkz56rqznmw',
+  password: 'qJcX3gKiZJGQ64yXLaov',
+  database: 'bfiduy2yfdfeqqrvvy53',
+  port: 3306
 });
 
-async function run() {
-    try {
-        await client.connect();
-        console.log('Conectado a MongoDB Atlas');
-    } catch (error) {
-        console.error('Error al conectar a MongoDB Atlas:', error);
-    } finally {
-        await client.close();
-    }
-}
+// Comprobación de conexión inicial
+dbPool.getConnection()
+  .then(connection => {
+    console.log('Conectado a la base de datos MySQL');
+    connection.release(); // Liberar la conexión inmediatamente si no se usa
+  })
+  .catch(err => {
+    console.error('Error al conectar a la base de datos:', err);
+  });
 
-run().catch(console.dir);
-
-// Conexión usando Mongoose
-mongoose.connect(uri, { 
-    ssl: true,
-    tlsInsecure: true,  // Temporalmente deshabilitar la validación de certificados (solo para pruebas)
-    connectTimeoutMS: 10000,
-    socketTimeoutMS: 45000
-})
-    .then(() => {
-        console.log('Conectado a MongoDB Atlas con Mongoose');
-    })
-    .catch(err => {
-        console.error('Error al conectar a MongoDB Atlas con Mongoose:', err);
-    });
-
-// FIN DE LA CONEXIÓN DE LA BASE DE DATOS
-
-// ---------------------------------------------------------------------------------------------
-
-// Definir el esquema de usuario
-const userSchema = new Schema({
-    username: {
-        type: String,
-        required: true,
-    },
-    nombre: {
-      type: String,
-      required: true,
-    },
-    apellidos: {
-      type: String,
-      required: true,
-    },
-    telefono: {
-      type: String,
-      required: true,
-    },
-    correo: {
-      type: String,
-      required: true,
-    },
-    edad: {
-      type: Number,
-      required: true,
-    },
-    password: {
-      type: String,
-      required: true,
-    }
-});
-  
-const User = mongoose.model('User', userSchema);
 
 // ---------------------------------------------------------------------------------------------
 
 // RUTA DE REGISTRO
-
 app.post('/signup', async (req, res) => {
   const { username, nombre, apellidos, telefono, correo, edad, password } = req.body;
 
-  // Verificar si el usuario ya existe por correo o username
-  const emailExists = await User.findOne({ correo });
-  const usernameExists = await User.findOne({ username });
+  try {
+    const connection = await dbPool.getConnection();
 
-  if (emailExists) {
-    return res.status(400).json({ message: 'El correo ya está registrado' });
+    // Verificar si el usuario ya existe por correo o username
+    const [existingUser] = await connection.execute('SELECT * FROM Users WHERE correo = ? OR username = ?', [correo, username]);
+
+    if (existingUser.length > 0) {
+      return res.status(400).json({ message: 'El correo o nombre de usuario ya está registrado' });
+    }
+
+    // Hashear la contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Crear un nuevo usuario
+    await connection.execute(
+      'INSERT INTO Users (username, nombre, apellidos, telefono, correo, edad, password) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [username, nombre, apellidos, telefono, correo, edad, hashedPassword]
+    );
+
+    connection.release(); // Liberar la conexión de vuelta al pool
+    res.json({ message: 'Usuario registrado correctamente' });
+  } catch (error) {
+    console.error('Error al registrar usuario:', error);
+    res.status(500).json({ message: 'Error al registrar usuario' });
   }
-  
-  if (usernameExists) {
-    return res.status(400).json({ message: 'El nombre de usuario ya está registrado' });
-  }
-
-  // Hashear la contraseña
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  // Crear un nuevo usuario
-  const newUser = new User({
-    username,
-    nombre,
-    apellidos,
-    telefono,
-    correo,
-    edad,
-    password: hashedPassword
-  });
-
-  // Guardar el usuario en la base de datos
-  await newUser.save();
-
-  res.json({ message: 'Usuario registrado correctamente' });
 });
 
 // FIN DE LA RUTA DE REGISTRO
@@ -138,72 +73,11 @@ app.post('/signup', async (req, res) => {
 
 // Configuración del transportador de nodemailer
 const transporter = nodemailer.createTransport({
-    service: 'Gmail', // Cambia esto según tu proveedor de correo
-    auth: {
-        user: 'bibliotecautng1975@gmail.com', // Tu dirección de correo electrónico
-        pass: 'piofgmqxyiachyzs', // Tu contraseña de correo electrónico
-    },
-});
-
-// FIN DE NODEMAILER
-
-// ---------------------------------------------------------------------------------------------
-
-// Almacenamiento temporal del token y la expiración en memoria
-let tempToken = null;
-let tokenExpirationTime = null;
-
-// Ruta de inicio de sesión para generar y enviar el token
-app.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-
-  // Buscar el usuario por nombre de usuario
-  const user = await User.findOne({ username });
-  if (!user) {
-      return res.status(401).json({ message: 'Credenciales inválidas' });
-  }
-
-  // Comparar contraseñas
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-      return res.status(401).json({ message: 'Credenciales inválidas' });
-  }
-
-  // Generar un token de 6 dígitos
-  const token = generateSixDigitToken();
-  console.log('Token generado:', token);
-
-  // Establecer la expiración del token (5 minutos)
-  const expirationTime = Date.now() + 5 * 60 * 1000; // 5 minutos en milisegundos
-
-  // Almacenar el token y su expiración en variables temporales
-  tempToken = token;
-  tokenExpirationTime = expirationTime;
-
-  // Imprimir para depuración
-  console.log('Token temporal:', tempToken, 'Expira en:', new Date(tokenExpirationTime));
-
-  // Enviar el token al correo electrónico
-  const mailOptions = {
-      from: process.env.EMAIL,
-      to: user.correo,
-      subject: 'Token de Inicio de Sesión',
-      text: `¡Hola ${user.username}!\n\n` +
-            `Has solicitado un inicio de sesión. Aquí está tu token:\n\n` +
-            `Token: ${token}\n\n` +
-            `Este token es válido por 5 minutos. Por favor, no lo compartas con nadie.\n\n` +
-            `Si no solicitaste este inicio de sesión, por favor ignora este correo.\n\n` +
-            `¡Gracias!\n` +
-            `El equipo de Tasky`,
-  };
-
-  try {
-      await transporter.sendMail(mailOptions);
-      res.json({ message: 'Token enviado al correo electrónico' });
-  } catch (error) {
-      console.error('Error al enviar el correo', error);
-      res.status(500).json({ message: 'Error al enviar el correo' });
-  }
+  service: 'Gmail', // Cambia esto según tu proveedor de correo
+  auth: {
+    user: 'bibliotecautng1975@gmail.com', // Tu dirección de correo electrónico
+    pass: 'piofgmqxyiachyzs', // Tu contraseña de correo electrónico
+  },
 });
 
 // Función para generar un token de 6 dígitos
@@ -211,11 +85,65 @@ function generateSixDigitToken() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// FIN DE LA RUTA DE INICIO DE SESION
+// -----------------------------------------------------------------------
 
-// ---------------------------------------------------------------------------------------------
+// RUTA DE INICIO DE SESIÓN
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
 
-// RUTA PARA VERIFICAR TOKEN
+  try {
+    const connection = await dbPool.getConnection();
+    try {
+      // Buscar el usuario por nombre de usuario
+      const [rows] = await connection.execute('SELECT * FROM Users WHERE username = ?', [username]);
+      const user = rows[0];
+      if (!user) {
+        return res.status(401).json({ message: 'Credenciales inválidas' });
+      }
+
+      // Comparar contraseñas
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Credenciales inválidas' });
+      }
+
+      // Generar un token de 6 dígitos y asignarlo globalmente
+      const token = generateSixDigitToken();
+      tempToken = token; // Asigna el token globalmente
+      tokenExpirationTime = Date.now() + 5 * 60 * 1000; // 5 minutos en milisegundos
+      console.log('Token temporal asignado:', tempToken);
+
+      // Enviar el token al correo electrónico
+      const mailOptions = {
+        from: transporter.options.auth.user,
+        to: user.correo,
+        subject: 'Token de Inicio de Sesión',
+        text: `¡Hola ${user.username}!\n\n` +
+              `Has solicitado un inicio de sesión. Aquí está tu token:\n\n` +
+              `Token: ${token}\n\n` +
+              `Este token es válido por 5 minutos. Por favor, no lo compartas con nadie.\n\n` +
+              `Si no solicitaste este inicio de sesión, por favor ignora este correo.\n\n` +
+              `¡Gracias!\n` +
+              `El equipo de Tasky`,
+      };
+
+      try {
+        await transporter.sendMail(mailOptions);
+        res.json({ message: 'Token enviado al correo electrónico' });
+      } catch (error) {
+        console.error('Error al enviar el correo', error);
+        res.status(500).json({ message: 'Error al enviar el correo', error: error.message });
+      }
+    } finally {
+      connection.release(); // Liberar la conexión de vuelta al pool
+    }
+  } catch (error) {
+    console.error('Error al iniciar sesión:', error);
+    res.status(500).json({ message: 'Error al iniciar sesión', error: error.message });
+  }
+});
+
+// FIN DE LOGIN --------------------------------------------------------
 
 // Ruta para validar el token
 app.post('/validate_token', async (req, res) => {
@@ -225,41 +153,106 @@ app.post('/validate_token', async (req, res) => {
   console.log('Datos recibidos del formulario:', req.body);
 
   if (!username) {
-      console.log('No se recibió el nombre de usuario');
-      return res.status(400).json({ message: 'Nombre de usuario no proporcionado' });
+    console.log('No se recibió el nombre de usuario');
+    return res.status(400).json({ message: 'Nombre de usuario no proporcionado' });
   }
 
   if (!token) {
-      console.log('No se recibió el token');
-      return res.status(400).json({ message: 'Token no proporcionado' });
+    console.log('No se recibió el token');
+    return res.status(400).json({ message: 'Token no proporcionado' });
   }
 
-  // Buscar el usuario por nombre de usuario (si quieres validar que el usuario existe)
-  const user = await User.findOne({ username });
-  if (!user) {
+  try {
+    // Conectar a la base de datos
+    const connection = await dbPool.getConnection();
+
+    // Buscar el usuario por nombre de usuario
+    const [rows] = await connection.execute('SELECT * FROM Users WHERE username = ?', [username]);
+    const user = rows[0];
+
+    // Liberar la conexión de vuelta al pool
+    connection.release();
+
+    if (!user) {
       console.log('Usuario no encontrado:', username);
       return res.status(401).json({ message: 'Usuario no encontrado' });
-  }
+    }
 
-  // Verificar el token temporal y su expiración
-  console.log('Token recibido:', token);
-  console.log('Token temporal almacenado:', tempToken);
+    // Verificar el token temporal y su expiración
+    console.log('Token recibido:', token);
+    console.log('Token temporal almacenado:', tempToken);
 
-  const isTokenValid = token === tempToken && Date.now() < tokenExpirationTime;
+    const isTokenValid = token === tempToken && Date.now() < tokenExpirationTime;
 
-  if (!isTokenValid) {
+    if (!isTokenValid) {
       console.log('Token inválido o expirado');
       return res.status(401).json({ message: 'Token inválido o expirado' });
-  }
+    }
 
-  // Si el token es válido
-  console.log('Token verificado correctamente');
-  res.json({ message: 'Token verificado, inicio de sesión exitoso' });
+    // Si el token es válido
+    console.log('Token verificado correctamente');
+    res.json({ message: 'Token verificado, inicio de sesión exitoso' });
+
+  } catch (error) {
+    console.error('Error al validar token:', error);
+    res.status(500).json({ message: 'Error al validar token' });
+  }
+});
+
+// INICIO DE SESION CON GOOGLE ------------
+
+// const { OAuth2Client } = require('google-auth-library');
+// const client = new OAuth2Client('965610149476-ieqvfaarut56ujsev3g905q47tof2ogm.apps.googleusercontent.com');
+
+// async function verifyToken(idToken) {
+//   const ticket = await client.verifyIdToken({
+//     idToken: idToken,
+//     audience: '965610149476-ieqvfaarut56ujsev3g905q47tof2ogm.apps.googleusercontent.com',
+//   });
+//   const payload = ticket.getPayload();
+//   return payload;
+// }
+
+// app.post('/login_with_google', async (req, res) => {
+//   const { idToken } = req.body;
+
+//   try {
+//     const payload = await verifyToken(idToken);
+//     // Aquí puedes buscar o crear un usuario en tu base de datos basado en la información del token
+//     res.status(200).send({ message: 'Login exitoso' });
+//   } catch (error) {
+//     res.status(401).send({ message: 'Token inválido' });
+//   }
+// });
+
+// Ruta para verificar el correo si existe cuando accede por Google
+app.post('/google-login', async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const connection = await dbPool.getConnection();
+
+    // Verificar si el correo está registrado en la base de datos
+    const [rows] = await connection.execute('SELECT * FROM Users WHERE correo = ?', [email]);
+    const user = rows[0]; // Asegúrate de que 'user' está bien definido
+
+    // Liberar la conexión de vuelta al pool
+    connection.release();
+
+    // Si el usuario no existe, se retorna un error
+    if (!user) {
+      return res.status(404).json({ message: 'Correo no registrado' });
+    }
+
+    // Si el usuario existe, envía la respuesta de éxito
+    res.status(200).json({ message: 'Inicio de sesión exitoso', user });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
 
 
-// FIN DE LA RUTA DE VERIFICACIÓN DE TOKEN
 
-// ---------------------------------------------------------------------------------------------
-
+// Iniciar el servidor
 app.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));
