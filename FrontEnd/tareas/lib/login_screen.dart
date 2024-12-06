@@ -10,6 +10,8 @@ import 'package:connectivity_plus/connectivity_plus.dart'; // Para verificar la 
 import 'package:url_launcher/url_launcher.dart'; // Para abrir URLs
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -42,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       });
       return; // No hacer la solicitud si los campos están vacíos
     }
@@ -67,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
             btnOkOnPress: () {
 
             },
-          )..show();
+          ).show();
           _isLoginSuccessful = true;
           _showTokenInput = true; // Muestra el campo para ingresar el token
         });
@@ -84,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
             btnOkOnPress: () {
 
             },
-          )..show();
+          ).show();
           _showTokenInput = false; // Asegúrate de ocultar el campo para el token
           _usernameController.clear(); // Limpiar el campo de usuario
           _passwordController.clear(); // Limpiar el campo de contraseña
@@ -121,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
             btnOkOnPress: () {
 
             },
-          )..show();
+          ).show();
       return; // No hacer la solicitud si el token está vacío
     }
 
@@ -141,12 +143,12 @@ class _LoginScreenState extends State<LoginScreen> {
             dialogType: DialogType.success,
             animType: AnimType.bottomSlide,
             title: 'Exito!',
-            desc: 'Token válido. \n Bienvenido ${username}',
+            desc: 'Token válido. \n Bienvenido $username',
             btnOkText: 'Cerrar',
             btnOkOnPress: () {
               Navigator.pushNamed(context, '/home_user_screen');
             },
-          )..show();
+          ).show();
       } else {
         // Manejar el error de validación del token
         setState(() {
@@ -159,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
             btnOkText: 'Cerrar',
             btnOkOnPress: () {
             },
-          )..show();
+          ).show();
           _loginMessage = 'Token inválido'; // Mensaje de error
           _tokenController.clear(); // Limpiar el campo de token
         });
@@ -180,8 +182,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signInWithGoogle(BuildContext context) async {
-  final String auth0Domain = 'dev-mbxq2mv4zudqw8f4.us.auth0.com'; // Tu dominio Auth0
-  final String clientId = 'FOnFMDdBgQeyK59ydo76MBGBBtw2hFcT'; // Tu Client ID
+  const String auth0Domain = 'dev-mbxq2mv4zudqw8f4.us.auth0.com'; // Tu dominio Auth0
+  const String clientId = 'FOnFMDdBgQeyK59ydo76MBGBBtw2hFcT'; // Tu Client ID
 
   try {
     // Inicia sesión con Google
@@ -213,7 +215,7 @@ class _LoginScreenState extends State<LoginScreen> {
           // Redirigir al usuario a la pantalla de HomeUserScreen
           Navigator.pushNamed(context, '/home_user_screen');
         },
-      )..show();
+      ).show();
     } else if (response.statusCode == 404) {
       // Si el correo no está registrado, mostrar el mensaje de error
       AwesomeDialog(
@@ -226,7 +228,7 @@ class _LoginScreenState extends State<LoginScreen> {
         btnOkOnPress: () {
           Navigator.pushNamed(context, '/home');
         },
-      )..show();
+      ).show();
     } else {
       // Si ocurre otro error, manejarlo aquí
       throw Exception('Error en la autenticación con Google');
@@ -254,14 +256,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.grey.withOpacity(0.2),
                 spreadRadius: 5,
                 blurRadius: 10,
-                offset: Offset(0, 3),
+                offset: const Offset(0, 3),
               ),
             ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
+              const Text(
                 'Iniciar sesión',
                 style: TextStyle(
                   fontSize: 32,
@@ -269,13 +271,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   color: AppColors.accentColor,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               if (!_isLoginSuccessful) ...[
                 TextField(
                   controller: _usernameController,
                   decoration: InputDecoration(
                     hintText: 'Usuario',
-                    prefixIcon: Icon(Icons.person, color: AppColors.primaryColor),
+                    prefixIcon: const Icon(Icons.person, color: AppColors.primaryColor),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -284,13 +286,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextField(
                   controller: _passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Contraseña',
-                    prefixIcon: Icon(Icons.lock, color: AppColors.primaryColor),
+                    prefixIcon: const Icon(Icons.lock, color: AppColors.primaryColor),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -299,54 +301,54 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
                   child: Text(
                     'Iniciar Sesión',
                     style: TextStyle(color: Colors.white),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 ElevatedButton.icon(
                   onPressed: () {
                     _signInWithGoogle(context);
                   },
-                  icon: Icon(Icons.login),
-                  label: Text('Ingresar con Google'),
+                  icon: const Icon(Icons.login),
+                  label: const Text('Ingresar con Google'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/register');
                         },
-                        child: Text(
+                        child: const Text(
                           '¿No tienes cuenta? Regístrate',
                           style: TextStyle(color: Colors.blue),
                         ),
                         ),
               ],
               if (_showTokenInput) ...[
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextField(
                   controller: _tokenController,
                   decoration: InputDecoration(
                     hintText: 'Token',
-                    prefixIcon: Icon(Icons.security, color: AppColors.primaryColor),
+                    prefixIcon: const Icon(Icons.security, color: AppColors.primaryColor),
                     filled: true,
                     fillColor: Colors.white,
                     border: OutlineInputBorder(
@@ -355,26 +357,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _validateToken,
-                  child: Text(
-                    'Validar Token',
-                    style: TextStyle(color: Colors.white),
-                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
-                    padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+                  child: Text(
+                    'Validar Token',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Text(
                 _loginMessage,
-                style: TextStyle(color: Colors.red, fontSize: 16),
+                style: const TextStyle(color: Colors.red, fontSize: 16),
               ),
             ],
           ),

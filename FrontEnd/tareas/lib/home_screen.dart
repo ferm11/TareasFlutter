@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'colors.dart';  // Asegúrate de definir tus colores en colors.dart
 
 class HomeScreen extends StatelessWidget {
+  const HomeScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,14 +17,14 @@ class HomeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.center,  // Centrar horizontalmente
               children: [
                 // Icono o ilustración central alusiva a tareas
-                Icon(
+                const Icon(
                   Icons.check_circle_outline,
                   size: 120,
                   color: AppColors.accentColor,  // Color llamativo del ícono
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
                 // Título principal
-                Text(
+                const Text(
                   '¡Bienvenido a Mis Recordatorios!',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -31,7 +33,7 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 // Subtítulo motivacional
                 Text(
                   'Organiza tus tareas de forma fácil y rápida. Mantén todo bajo control.',
@@ -41,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                     color: Colors.white.withOpacity(0.8),
                   ),
                 ),
-                SizedBox(height: 50),  // Espaciado mayor antes del botón
+                const SizedBox(height: 50),  // Espaciado mayor antes del botón
                 // Botón de acción (ir a login o tareas)
                 ElevatedButton(
                   onPressed: () {
@@ -50,17 +52,17 @@ class HomeScreen extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.accentColor,  // Color llamativo
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Comenzar',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
-                SizedBox(height: 30),
+                const SizedBox(height: 30),
               ],
             ),
           ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart'; // Para formatear fechas
 
 class CrearTareas extends StatefulWidget {
+  const CrearTareas({super.key});
+
   @override
   _CrearTareasState createState() => _CrearTareasState();
 }
@@ -11,7 +13,7 @@ class _CrearTareasState extends State<CrearTareas> {
   String? _nombre;
   String? _descripcion;
   DateTime _fechaFin = DateTime.now(); // Fecha de finalización por defecto
-  DateTime _fechaCreacion = DateTime.now(); // Fecha de creación por defecto
+  final DateTime _fechaCreacion = DateTime.now(); // Fecha de creación por defecto
 
   void _crearTarea() {
     if (_formKey.currentState!.validate()) {
@@ -24,7 +26,7 @@ class _CrearTareasState extends State<CrearTareas> {
 
       // Puedes mostrar un mensaje de éxito o hacer una navegación hacia otra pantalla
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Tarea creada exitosamente')),
+        const SnackBar(content: Text('Tarea creada exitosamente')),
       );
 
       // Limpiar los campos después de la creación
@@ -51,23 +53,23 @@ class _CrearTareasState extends State<CrearTareas> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Crear Tarea'),
+        title: const Text('Crear Tarea'),
         backgroundColor: Colors.blue,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Crear Nueva Tarea',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nombre de la tarea',
                   border: OutlineInputBorder(),
                 ),
@@ -79,9 +81,9 @@ class _CrearTareasState extends State<CrearTareas> {
                 },
                 onSaved: (value) => _nombre = value,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Descripción',
                   border: OutlineInputBorder(),
                 ),
@@ -93,10 +95,10 @@ class _CrearTareasState extends State<CrearTareas> {
                 },
                 onSaved: (value) => _descripcion = value,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               // Mostrar la fecha de creación
-              Text('Fecha de creación: ${DateFormat('yyyy-MM-dd').format(_fechaCreacion)}', style: TextStyle(fontSize: 16)),
-              SizedBox(height: 16),
+              Text('Fecha de creación: ${DateFormat('yyyy-MM-dd').format(_fechaCreacion)}', style: const TextStyle(fontSize: 16)),
+              const SizedBox(height: 16),
               // Campo para seleccionar la fecha de finalización
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -104,14 +106,14 @@ class _CrearTareasState extends State<CrearTareas> {
                   Text('Fecha de finalización: ${DateFormat('yyyy-MM-dd').format(_fechaFin)}'),
                   TextButton(
                     onPressed: () => _seleccionarFechaFin(context),
-                    child: Text('Seleccionar fecha'),
+                    child: const Text('Seleccionar fecha'),
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _crearTarea,
-                child: Text('Crear Tarea'),
+                child: const Text('Crear Tarea'),
               ),
             ],
           ),

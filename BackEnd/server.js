@@ -119,12 +119,12 @@ app.post('/login', async (req, res) => {
         to: user.correo,
         subject: 'Token de Inicio de Sesión',
         text: `¡Hola ${user.username}!\n\n` +
-              `Has solicitado un inicio de sesión. Aquí está tu token:\n\n` +
-              `Token: ${token}\n\n` +
-              `Este token es válido por 5 minutos. Por favor, no lo compartas con nadie.\n\n` +
-              `Si no solicitaste este inicio de sesión, por favor ignora este correo.\n\n` +
-              `¡Gracias!\n` +
-              `El equipo de Tasky`,
+          `Has solicitado un inicio de sesión. Aquí está tu token:\n\n` +
+          `Token: ${token}\n\n` +
+          `Este token es válido por 5 minutos. Por favor, no lo compartas con nadie.\n\n` +
+          `Si no solicitaste este inicio de sesión, por favor ignora este correo.\n\n` +
+          `¡Gracias!\n` +
+          `El equipo de Tasky`,
       };
 
       try {
@@ -252,7 +252,114 @@ app.post('/google-login', async (req, res) => {
   }
 });
 
+// CRUD DE TAREAS
 
+// RUTA PARA CREAR UNA NUEVA TAREA
+app.post('/tasks', async (req, res) => {
+  const { Titulo, Descripcion, FechaLimite, Ubicacion } = req.body;
+
+  try {
+    const connection = await dbPool.getConnection();
+
+    await connection.execute(
+      'INSERT INTO Tasks (Titulo, Descripcion, FechaLimite, Ubicacion) VALUES (?, ?, ?, ?)',
+      [Titulo, Descripcion, FechaLimite, Ubicacion]
+    );
+
+    connection.release(); // Liberar la conexión
+    res.json({ message: 'Tarea creada exitosamente' });
+  } catch (error) {
+    console.error('Error al crear la tarea:', error);
+    res.status(500).json({ message: 'Error al crear la tarea' });
+  }
+});
+
+// RUTA PARA OBTENER TODAS LAS TAREAS
+app.get('/tasks', async (req, res) => {
+  try {
+    const connection = await dbPool.getConnection();
+
+    const [tasks] = await connection.execute('SELECT * FROM Tasks');
+
+    connection.release(); // Liberar la conexión
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error al obtener las tareas:', error);
+    res.status(500).json({ message: 'Error al obtener las tareas' });
+  }
+});
+
+// RUTA PARA OBTENER UNA TAREA POR ID
+app.get('/tasks/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = await dbPool.getConnection();
+
+    const [task] = await connection.execute('SELECT * FROM Tasks WHERE id = ?', [id]);
+
+    connection.release(); // Liberar la conexión
+
+    if (task.length === 0) {
+      return res.status(404).json({ message: 'Tarea no encontrada' });
+    }
+
+    res.json(task[0]);
+  } catch (error) {
+    console.error('Error al obtener la tarea:', error);
+    res.status(500).json({ message: 'Error al obtener la tarea' });
+  }
+});
+
+// RUTA PARA ACTUALIZAR UNA TAREA POR ID
+app.put('/tasks/:id', async (req, res) => {
+  const { id } = req.params;
+  const { Titulo, Descripcion, FechaLimite, Ubicacion } = req.body;
+
+  try {
+    const connection = await dbPool.getConnection();
+
+    const [result] = await connection.execute(
+      'UPDATE Tasks SET Titulo = ?, Descripcion = ?, FechaLimite = ?, Ubicacion = ? WHERE id = ?',
+      [Titulo, Descripcion, FechaLimite, Ubicacion, id]
+    );
+
+    connection.release(); // Liberar la conexión
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Tarea no encontrada' });
+    }
+
+    res.json({ message: 'Tarea actualizada exitosamente' });
+  } catch (error) {
+    console.error('Error al actualizar la tarea:', error);
+    res.status(500).json({ message: 'Error al actualizar la tarea' });
+  }
+});
+
+// RUTA PARA ELIMINAR UNA TAREA POR ID
+app.delete('/tasks/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const connection = await dbPool.getConnection();
+
+    const [result] = await connection.execute('DELETE FROM Tasks WHERE id = ?', [id]);
+
+    connection.release(); // Liberar la conexión
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Tarea no encontrada' });
+    }
+
+    res.json({ message: 'Tarea eliminada exitosamente' });
+  } catch (error) {
+    console.error('Error al eliminar la tarea:', error);
+    res.status(500).json({ message: 'Error al eliminar la tarea' });
+  }
+});
+
+// FIN DEL CRUD DE TAREAS
 
 // Iniciar el servidor
 app.listen(3000, () => console.log('Servidor corriendo en el puerto 3000'));

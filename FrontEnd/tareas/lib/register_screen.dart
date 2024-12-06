@@ -15,6 +15,8 @@ class RegisterScreen extends StatelessWidget {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
 
+  RegisterScreen({super.key});
+
   bool validateEmail(String email) {
     return RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email);
   }
@@ -52,7 +54,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       return;
     }
 
@@ -67,7 +69,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       return;
     }
 
@@ -82,7 +84,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       return;
     }
 
@@ -97,7 +99,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       return;
     }
 
@@ -112,7 +114,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       return;
     }
 
@@ -144,7 +146,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
           Navigator.pushNamed(context, '/home');
         },
-      )..show();
+      ).show();
     } else {
       AwesomeDialog(
         context: context,
@@ -156,7 +158,7 @@ class RegisterScreen extends StatelessWidget {
         btnOkOnPress: () {
 
         },
-      )..show();
+      ).show();
       _showErrorDialog(context, 'Error al registrar usuario: ${response.body}');
     }
   }
@@ -166,14 +168,14 @@ class RegisterScreen extends StatelessWidget {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Error'),
+          title: const Text('Error'),
           content: Text(message),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Aceptar'),
+              child: const Text('Aceptar'),
             ),
           ],
         );
@@ -192,8 +194,8 @@ class RegisterScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(height: 40),
-                Text(
+                const SizedBox(height: 40),
+                const Text(
                   'Registrarse',
                   style: TextStyle(
                     fontSize: 32,
@@ -201,14 +203,14 @@ class RegisterScreen extends StatelessWidget {
                     color: AppColors.accentColor,
                   ),
                 ),
-                SizedBox(height: 40),
+                const SizedBox(height: 40),
                 Container(
-                  padding: EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(20),
                   width: 300, // Reduce el ancho del contenedor
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 10,
@@ -220,7 +222,7 @@ class RegisterScreen extends StatelessWidget {
                     children: [
                       TextField(
                         controller: _usernameController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Username',
                           prefixIcon: Icon(Icons.account_circle, color: AppColors.primaryColor),
                           filled: true,
@@ -228,10 +230,10 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none, // Quita el borde del campo
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _nombreController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Nombre',
                           prefixIcon: Icon(Icons.person, color: AppColors.primaryColor),
                           filled: true,
@@ -239,10 +241,10 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _apellidosController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Apellidos',
                           prefixIcon: Icon(Icons.person, color: AppColors.primaryColor),
                           filled: true,
@@ -250,10 +252,10 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _telefonoController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Teléfono',
                           prefixIcon: Icon(Icons.phone, color: AppColors.primaryColor),
                           filled: true,
@@ -265,10 +267,10 @@ class RegisterScreen extends StatelessWidget {
                           FilteringTextInputFormatter.digitsOnly,
                         ],
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _correoController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Correo',
                           prefixIcon: Icon(Icons.email, color: AppColors.primaryColor),
                           filled: true,
@@ -276,14 +278,14 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _edadController,
                         keyboardType: TextInputType.number,
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Edad',
                           prefixIcon: Icon(Icons.calendar_today, color: AppColors.primaryColor),
                           filled: true,
@@ -291,11 +293,11 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _passwordController,
                         obscureText: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Contraseña',
                           prefixIcon: Icon(Icons.lock, color: AppColors.primaryColor),
                           filled: true,
@@ -303,11 +305,11 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       TextField(
                         controller: _confirmPasswordController,
                         obscureText: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           hintText: 'Confirmar Contraseña',
                           prefixIcon: Icon(Icons.lock, color: AppColors.primaryColor),
                           filled: true,
@@ -315,30 +317,30 @@ class RegisterScreen extends StatelessWidget {
                           border: InputBorder.none,
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () {
                           registerUser(context);
                         },
-                        child: Text('Registrar',
-                        style: TextStyle(color: Colors.white)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
-                          padding: EdgeInsets.symmetric(horizontal: 100, vertical: 20),
+                          padding: const EdgeInsets.symmetric(horizontal: 100, vertical: 20),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
+                        child: Text('Registrar',
+                        style: TextStyle(color: Colors.white)),
                       ),
                     ],
                   ),
                 ),
-                SizedBox(height: 20),
+                const SizedBox(height: 20),
                 TextButton(
                   onPressed: () {
                     Navigator.pushNamed(context, '/login');
                   },
-                  child: Text('Ya tengo una cuenta'),
+                  child: const Text('Ya tengo una cuenta'),
                 ),
               ],
             ),

@@ -7,6 +7,8 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -27,32 +29,34 @@ class MyApp extends StatelessWidget {
 }
 
 class HomeUserScreen extends StatelessWidget {
+  const HomeUserScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Tasky',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: AppColors.primaryColor,
         actions: [
           PopupMenuButton<String>(
-            icon: Icon(
+            icon: const Icon(
               Icons.person,
               color: Colors.white,
             ),
             itemBuilder: (BuildContext context) {
               return [
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'profile',
                   child: Text('Perfil'),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'settings',
                   child: Text('Configuraciones'),
                 ),
-                PopupMenuItem<String>(
+                const PopupMenuItem<String>(
                   value: 'logout',
                   child: Text('Cerrar sesión'),
                 ),
@@ -86,12 +90,12 @@ class HomeUserScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/crear_tarea'); // Navegar a crear tareas
                     },
                     child: Container(
-                      margin: EdgeInsets.all(10.0),
+                      margin: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
                         color: AppColors.primaryColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Crear Tarea',
                           style: TextStyle(
@@ -110,12 +114,12 @@ class HomeUserScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/ver_tareas'); // Navegar a ver tareas
                     },
                     child: Container(
-                      margin: EdgeInsets.all(10.0),
+                      margin: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
                         color: AppColors.secondaryColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Ver Tareas',
                           style: TextStyle(
@@ -140,12 +144,12 @@ class HomeUserScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/ver_tareas_terminadas'); // Navegar a ver tareas terminadas
                     },
                     child: Container(
-                      margin: EdgeInsets.all(10.0),
+                      margin: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
                         color: AppColors.tertiaryColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Ver Tareas Terminadas',
                           style: TextStyle(
@@ -164,12 +168,12 @@ class HomeUserScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/mostrar_estadisticas'); // Navegar a mostrar estadísticas
                     },
                     child: Container(
-                      margin: EdgeInsets.all(10.0),
+                      margin: const EdgeInsets.all(10.0),
                       decoration: BoxDecoration(
                         color: AppColors.quaternaryColor.withOpacity(0.8),
                         borderRadius: BorderRadius.circular(10.0),
                       ),
-                      child: Center(
+                      child: const Center(
                         child: Text(
                           'Mostrar Estadísticas',
                           style: TextStyle(
@@ -192,13 +196,15 @@ class HomeUserScreen extends StatelessWidget {
 }
 
 class CrearTareasScreen extends StatelessWidget {
+  const CrearTareasScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Crear Tareas'),
+        title: const Text('Crear Tareas'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Aquí puedes crear tareas.'),
       ),
     );
@@ -206,13 +212,15 @@ class CrearTareasScreen extends StatelessWidget {
 }
 
 class VerTareasScreen extends StatelessWidget {
+  const VerTareasScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ver Tareas'),
+        title: const Text('Ver Tareas'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Aquí puedes ver las tareas.'),
       ),
     );
@@ -220,13 +228,15 @@ class VerTareasScreen extends StatelessWidget {
 }
 
 class VerTareasTerminadasScreen extends StatelessWidget {
+  const VerTareasTerminadasScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Ver Tareas Terminadas'),
+        title: const Text('Ver Tareas Terminadas'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Aquí puedes ver las tareas terminadas.'),
       ),
     );
@@ -234,13 +244,15 @@ class VerTareasTerminadasScreen extends StatelessWidget {
 }
 
 class MostrarEstadisticasScreen extends StatelessWidget {
+  const MostrarEstadisticasScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mostrar Estadísticas'),
+        title: const Text('Mostrar Estadísticas'),
       ),
-      body: Center(
+      body: const Center(
         child: Text('Aquí puedes ver las estadísticas.'),
       ),
     );
