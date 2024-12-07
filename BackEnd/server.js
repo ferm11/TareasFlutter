@@ -23,15 +23,20 @@ const dbPool = mysql.createPool({
   port: 3306
 });
 
-// Comprobación de conexión inicial
-dbPool.getConnection()
-  .then(connection => {
-    console.log('Conectado a la base de datos MySQL');
-    connection.release(); // Liberar la conexión inmediatamente si no se usa
-  })
-  .catch(err => {
-    console.error('Error al conectar a la base de datos:', err);
-  });
+// Comprobación y reconexión a la base de datos cada 5 segundos
+const tryConnectToDB = () => {
+  dbPool.getConnection()
+    .then(connection => {
+      console.log('Conectado a la base de datos MySQL');
+      connection.release(); // Liberar la conexión inmediatamente si no se usa
+    })
+    .catch(err => {
+      console.error('Error al conectar a la base de datos:', err);
+    });
+};
+
+// Conectar por primera vez al iniciar el servidor
+tryConnectToDB();
 
 
 // ---------------------------------------------------------------------------------------------
@@ -256,17 +261,24 @@ app.post('/google-login', async (req, res) => {
 
 // RUTA PARA CREAR UNA NUEVA TAREA
 app.post('/tasks', async (req, res) => {
+  console.log('Solicitud recibida:', req.body);
+
   const { Titulo, Descripcion, FechaLimite, Ubicacion } = req.body;
+
+  if (!Titulo || !Descripcion || !FechaLimite || !Ubicacion) {
+    console.error('Datos incompletos:', req.body);
+    return res.status(400).json({ message: 'Datos incompletos' });
+  }
 
   try {
     const connection = await dbPool.getConnection();
-
     await connection.execute(
       'INSERT INTO Tasks (Titulo, Descripcion, FechaLimite, Ubicacion) VALUES (?, ?, ?, ?)',
       [Titulo, Descripcion, FechaLimite, Ubicacion]
     );
 
-    connection.release(); // Liberar la conexión
+    connection.release();
+    console.log('Tarea creada con éxito');
     res.json({ message: 'Tarea creada exitosamente' });
   } catch (error) {
     console.error('Error al crear la tarea:', error);
@@ -275,7 +287,7 @@ app.post('/tasks', async (req, res) => {
 });
 
 // RUTA PARA OBTENER TODAS LAS TAREAS
-app.get('/tasks', async (req, res) => {
+app.get('/listTasks', async (req, res) => {
   try {
     const connection = await dbPool.getConnection();
 
@@ -290,74 +302,94 @@ app.get('/tasks', async (req, res) => {
 });
 
 // RUTA PARA OBTENER UNA TAREA POR ID
-app.get('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
+// app.get('/tasks/:id', async (req, res) => {
+//   const { id } = req.params;
 
-  try {
-    const connection = await dbPool.getConnection();
+//   try {
+//     const connection = await dbPool.getConnection();
 
-    const [task] = await connection.execute('SELECT * FROM Tasks WHERE id = ?', [id]);
+//     const [task] = await connection.execute('SELECT * FROM Tasks WHERE id = ?', [id]);
 
-    connection.release(); // Liberar la conexión
+//     connection.release(); // Liberar la conexión
 
-    if (task.length === 0) {
-      return res.status(404).json({ message: 'Tarea no encontrada' });
-    }
+//     if (task.length === 0) {
+//       return res.status(404).json({ message: 'Tarea no encontrada' });
+//     }
 
-    res.json(task[0]);
-  } catch (error) {
-    console.error('Error al obtener la tarea:', error);
-    res.status(500).json({ message: 'Error al obtener la tarea' });
-  }
-});
+//     res.json(task[0]);
+//   } catch (error) {
+//     console.error('Error al obtener la tarea:', error);
+//     res.status(500).json({ message: 'Error al obtener la tarea' });
+//   }
+// });
 
 // RUTA PARA ACTUALIZAR UNA TAREA POR ID
-app.put('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
-  const { Titulo, Descripcion, FechaLimite, Ubicacion } = req.body;
+app.put('/updateTask/:id', async (req, res) => {
+  const taskId = req.params.id;
+  let { Titulo, Descripcion, FechaLimite, Ubicacion } = req.body;
+
+  if (!Titulo || !Descripcion || !FechaLimite || !Ubicacion) {
+    return res.status(400).json({ message: 'Datos incompletos' });
+  }
 
   try {
     const connection = await dbPool.getConnection();
+
+    // Formatear FechaLimite a 'YYYY-MM-DD'
+    const fechaFormateada = new Date(FechaLimite).toISOString().split('T')[0];
 
     const [result] = await connection.execute(
       'UPDATE Tasks SET Titulo = ?, Descripcion = ?, FechaLimite = ?, Ubicacion = ? WHERE id = ?',
-      [Titulo, Descripcion, FechaLimite, Ubicacion, id]
+      [Titulo, Descripcion, fechaFormateada, Ubicacion, taskId]
     );
 
-    connection.release(); // Liberar la conexión
+    connection.release();
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Tarea no encontrada' });
+    if (result.affectedRows > 0) {
+      console.log(`Tarea con ID ${taskId} actualizada`);
+      res.status(200).json({ message: 'Tarea actualizada correctamente' });
+    } else {
+      console.log(`No se encontró la tarea con ID ${taskId}`);
+      res.status(404).json({ message: 'Tarea no encontrada' });
     }
-
-    res.json({ message: 'Tarea actualizada exitosamente' });
   } catch (error) {
     console.error('Error al actualizar la tarea:', error);
-    res.status(500).json({ message: 'Error al actualizar la tarea' });
+    res.status(500).json({ message: 'Error interno del servidor' });
   }
+});
+
+
+// Mover una tarea a la colección tareasTerminadas
+app.post('/moveToTerminadas', async (req, res) => {
+  const task = req.body;
+
+  await TaskTerminadasModel.create(task);
+  await TaskModel.findByIdAndDelete(task.id);
+
+  res.status(200).send('Tarea movida a Terminadas');
 });
 
 // RUTA PARA ELIMINAR UNA TAREA POR ID
-app.delete('/tasks/:id', async (req, res) => {
-  const { id } = req.params;
+// app.delete('/tasks/:id', async (req, res) => {
+//   const { id } = req.params;
 
-  try {
-    const connection = await dbPool.getConnection();
+//   try {
+//     const connection = await dbPool.getConnection();
 
-    const [result] = await connection.execute('DELETE FROM Tasks WHERE id = ?', [id]);
+//     const [result] = await connection.execute('DELETE FROM Tasks WHERE id = ?', [id]);
 
-    connection.release(); // Liberar la conexión
+//     connection.release(); // Liberar la conexión
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Tarea no encontrada' });
-    }
+//     if (result.affectedRows === 0) {
+//       return res.status(404).json({ message: 'Tarea no encontrada' });
+//     }
 
-    res.json({ message: 'Tarea eliminada exitosamente' });
-  } catch (error) {
-    console.error('Error al eliminar la tarea:', error);
-    res.status(500).json({ message: 'Error al eliminar la tarea' });
-  }
-});
+//     res.json({ message: 'Tarea eliminada exitosamente' });
+//   } catch (error) {
+//     console.error('Error al eliminar la tarea:', error);
+//     res.status(500).json({ message: 'Error al eliminar la tarea' });
+//   }
+// });
 
 // FIN DEL CRUD DE TAREAS
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tareas/crear_tarea.dart';
+import 'package:tareas/listar_tarea.dart';
 import 'colors.dart'; // Asegúrate de que este archivo exista y contenga tus colores
 
 void main() {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       home: HomeUserScreen(),
       routes: {
         '/crear_tarea': (context) => CrearTareas(),
-        '/ver_tareas': (context) => VerTareasScreen(),
+        '/listarTareas': (context) => ListarTareasApp(),
         '/ver_tareas_terminadas': (context) => VerTareasTerminadasScreen(),
         '/mostrar_estadisticas': (context) => MostrarEstadisticasScreen(),
       },
@@ -111,7 +112,7 @@ class HomeUserScreen extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/ver_tareas'); // Navegar a ver tareas
+                      Navigator.pushNamed(context, '/listarTareas'); // Navegar a ver tareas
                     },
                     child: Container(
                       margin: const EdgeInsets.all(10.0),
@@ -141,7 +142,7 @@ class HomeUserScreen extends StatelessWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () {
-                      Navigator.pushNamed(context, '/ver_tareas_terminadas'); // Navegar a ver tareas terminadas
+                      Navigator.pushNamed(context, '/terminadas'); // Navegar a ver tareas terminadas
                     },
                     child: Container(
                       margin: const EdgeInsets.all(10.0),

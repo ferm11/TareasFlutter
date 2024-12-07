@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:tareas/listar_tarea.dart';
+import 'package:tareas/tareas_terminadas.dart';
 import 'firebase_options.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -12,7 +14,7 @@ import 'home_user_screen.dart';
 import 'crear_tarea.dart';
 
 // Pantallas nuevas
-import 'task_list_screen.dart';
+import 'listar_tarea.dart';
 import 'task_form_screen.dart';
 
 void main() async {
@@ -41,7 +43,8 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomeScreen(),
         '/home_user_screen': (context) => HomeUserScreen(),
         '/crear_tarea': (context) => CrearTareas(),
-        '/task_list': (context) => TaskListScreen(), // Nueva ruta para la lista de tareas
+        '/listarTareas': (context) => ListarTareasApp(), // Nueva ruta para la lista de tareas
+        '/terminadas': (context) => TareasTerminadas(),
         '/task_form': (context) => TaskFormScreen(onSave: () {}), // Nueva ruta para el formulario de tareas
       },
     );

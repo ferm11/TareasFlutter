@@ -16,16 +16,28 @@ class TaskService {
 
   // Crear una nueva tarea
   static Future<void> createTask(Map<String, dynamic> taskData) async {
-    final response = await http.post(Uri.parse(baseUrl), body: taskData);
-    if (response.statusCode != 201) {
+    final response = await http.post(
+      Uri.parse(baseUrl),
+      headers: {'Content-Type': 'application/json'}, // Encabezado para JSON
+      body: jsonEncode(taskData), // Convertir a JSON
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      print('Error al crear la tarea: ${response.body}');
       throw Exception('Error al crear la tarea');
     }
   }
 
   // Actualizar una tarea existente
   static Future<void> updateTask(int id, Map<String, dynamic> taskData) async {
-    final response = await http.put(Uri.parse('$baseUrl/$id'), body: taskData);
+    final response = await http.put(
+      Uri.parse('$baseUrl/$id'),
+      headers: {'Content-Type': 'application/json'}, // Encabezado para JSON
+      body: jsonEncode(taskData), // Convertir a JSON
+    );
+
     if (response.statusCode != 200) {
+      print('Error al actualizar la tarea: ${response.body}');
       throw Exception('Error al actualizar la tarea');
     }
   }
@@ -34,6 +46,7 @@ class TaskService {
   static Future<void> deleteTask(int id) async {
     final response = await http.delete(Uri.parse('$baseUrl/$id'));
     if (response.statusCode != 200) {
+      print('Error al eliminar la tarea: ${response.body}');
       throw Exception('Error al eliminar la tarea');
     }
   }
