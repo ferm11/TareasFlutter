@@ -212,47 +212,51 @@ void _showAwesomeDialog(String title, String message, DialogType dialogType) {
 
 
   void _moveToTerminadas(Map task) async {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Mover a Terminadas'),
-          content: Text('¿Estás seguro de mover esta tarea a tareas terminadas?'),
-          actions: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              onPressed: () async {
-                try {
-                  final response = await http.post(
-                    Uri.parse('http://localhost:3000/moveToTerminadas'),
-                    headers: {'Content-Type': 'application/json'},
-                    body: json.encode(task),
-                  );
+  showDialog(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: Text('Mover a Terminadas'),
+        content: Text('¿Estás seguro de mover esta tarea a tareas terminadas?'),
+        actions: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            onPressed: () async {
+              try {
+                final response = await http.put(
+                  Uri.parse('http://localhost:3000/moveTask/${task['id']}'),  // Modificado a la ruta correcta
+                  headers: {'Content-Type': 'application/json'},
+                  body: json.encode(task),
+                );
 
-                  if (response.statusCode == 200) {
-                    setState(() {
-                      tasks.removeWhere((t) => t['id'] == task['id']);
-                    });
-                    Navigator.of(context).pop();
-                    _showSuccessDialog('Tarea movida a Terminadas');
-                  }
-                } catch (e) {
+                if (response.statusCode == 200) {
+                  setState(() {
+                    tasks.removeWhere((t) => t['id'] == task['id']);
+                  });
+                  Navigator.of(context).pop();
+                  _showSuccessDialog('Tarea movida a Terminadas');
+                } else {
                   Navigator.of(context).pop();
                   _showErrorDialog('Error al mover la tarea a Terminadas');
                 }
-              },
-              child: Text('Sí'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('No'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+              } catch (e) {
+                Navigator.of(context).pop();
+                _showErrorDialog('Error al conectar con el servidor');
+                print('Error al mover a Terminadas: $e');
+              }
+            },
+            child: Text('Sí'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('No'),
+          ),
+        ],
+      );
+    },
+  );
+}
 
   void _showSuccessDialog(String mensaje) {
     ScaffoldMessenger.of(context).showSnackBar(

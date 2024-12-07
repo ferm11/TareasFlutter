@@ -360,14 +360,63 @@ app.put('/updateTask/:id', async (req, res) => {
 
 
 // Mover una tarea a la colección tareasTerminadas
-app.post('/moveToTerminadas', async (req, res) => {
-  const task = req.body;
+app.put('/moveTask/:id', async (req, res) => {
+  const taskId = req.params.id;
 
-  await TaskTerminadasModel.create(task);
-  await TaskModel.findByIdAndDelete(task.id);
+  try {
+    const connection = await dbPool.getConnection();
 
-  res.status(200).send('Tarea movida a Terminadas');
+    // Obtener la tarea desde la tabla Tasks
+    const [taskRows] = await connection.execute('SELECT * FROM Tasks WHERE id = ?', [taskId]);
+
+    if (taskRows.length === 0) {
+      connection.release();
+      return res.status(404).json({ message: 'Tarea no encontrada en Tasks' });
+    }
+
+    const { Titulo, Descripcion, FechaLimite, Ubicacion } = taskRows[0];
+
+    // Formatear FechaLimite a 'YYYY-MM-DD'
+    const fechaFormateada = new Date(FechaLimite).toISOString().split('T')[0];
+
+    // Insertar la tarea en la tabla terminadas
+    await connection.execute(
+      'INSERT INTO terminadas (id, titulo, descripcion, fecha_limite, ubicacion) VALUES (?, ?, ?, ?, ?)',
+      [taskId, Titulo, Descripcion, fechaFormateada, Ubicacion]
+    );
+
+    // Eliminar la tarea de la tabla Tasks
+    await connection.execute('DELETE FROM Tasks WHERE id = ?', [taskId]);
+
+    connection.release();
+
+    console.log(`Tarea con ID ${taskId} movida a terminadas`);
+    res.status(200).json({ message: 'Tarea movida a Terminadas correctamente' });
+
+  } catch (error) {
+    console.error('Error al mover la tarea:', error);
+    res.status(500).json({ message: 'Error interno del servidor' });
+  }
 });
+
+// RUTA PARA TAREAS TERMINADAS
+app.get('/terminadas', async (req, res) => {
+  try {
+    const connection = await dbPool.getConnection();
+
+    const [tasks] = await connection.execute('SELECT * FROM terminadas');
+
+    connection.release(); 
+
+    console.log('Tareas terminadas:', tasks); // **Verifica la estructura de datos**
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error al obtener las tareas terminadas:', error);
+    res.status(500).json({ message: 'Error al obtener las tareas' });
+  }
+});
+
+
 
 // RUTA PARA ELIMINAR UNA TAREA POR ID
 // app.delete('/tasks/:id', async (req, res) => {

@@ -17,29 +17,36 @@ class _TareasTerminadasState extends State<TareasTerminadas> {
     fetchTerminadas();
   }
 
-  // Obtener las tareas terminadas desde el servidor
   void fetchTerminadas() async {
-    try {
-      final response = await http.get(Uri.parse('http://localhost:3000/terminadas'));
+  try {
+    final response = await http.get(Uri.parse('http://localhost:3000/terminadas'));
 
-      if (response.statusCode == 200) {
-        setState(() {
-          terminadas = List<Map<String, dynamic>>.from(json.decode(response.body));
-          isLoading = false;
-        });
-      } else {
-        print('Error al obtener tareas terminadas');
-        setState(() {
-          isLoading = false;
-        });
-      }
-    } catch (e) {
-      print('Error al cargar tareas terminadas: $e');
+    if (response.statusCode == 200) {
+      List tasks = jsonDecode(response.body);
+
+      setState(() {
+        terminadas = tasks.map((task) {
+          return {
+            'Titulo': task['titulo'] ?? 'Título no disponible',
+            'Descripcion': task['descripcion'] ?? 'Sin descripción'
+          };
+        }).toList();
+
+        isLoading = false;
+      });
+    } else {
       setState(() {
         isLoading = false;
       });
+      print('Error al obtener tareas terminadas');
     }
+  } catch (e) {
+    print('Error al cargar tareas: $e');
+    setState(() {
+      isLoading = false;
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +56,7 @@ class _TareasTerminadasState extends State<TareasTerminadas> {
         backgroundColor: Colors.teal,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())  // Indicador de carga
+          ? Center(child: CircularProgressIndicator())
           : terminadas.isEmpty
               ? Center(child: Text('No hay tareas terminadas'))
               : ListView.builder(
@@ -57,16 +64,20 @@ class _TareasTerminadasState extends State<TareasTerminadas> {
                   itemBuilder: (context, index) {
                     final task = terminadas[index];
 
+                    // Verificar si las claves existen y no son nulas
+                    final titulo = task['Titulo'] ?? 'Título no disponible';
+                    final descripcion = task['Descripcion'] ?? 'Sin descripción';
+
                     return Card(
-                      color: Colors.teal.shade50,
+                      color: Colors.amber.shade50,  // Color amarillo elegante
                       margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ListTile(
                         leading: Icon(Icons.check_circle, color: Colors.green),
-                        title: Text(task['Titulo']),
-                        subtitle: Text(task['Descripcion'] ?? 'Sin descripción'),
+                        title: Text(titulo),
+                        subtitle: Text(descripcion),
                       ),
                     );
                   },
